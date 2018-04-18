@@ -22,6 +22,7 @@ logging.basicConfig(**basic_logger_config)
 class App(object):
     """
     Contains the configuration needed to handle HTTP requests.
+    一个 App 对象。它包含配置信息，并使用它们实例化一个 HTTPServer 实例
     """
     def __init__(self,
                  router,
@@ -59,8 +60,14 @@ class App(object):
         if not self._server:
             self.loop = asyncio.get_event_loop()
             self._server = HTTPServer(self.router, self.http_parser, self.loop)
+            # The function start_server() creates a (StreamReader, StreamWriter) pair and calls back a function with this pair.
+            '''
+            asyncio.start_server 接受 TCP 连接，然后在一个预配置的 HTTPServer 对象上调用一个方法。
+            这个方法将处理一条 TCP 连接的所有逻辑：读取、解析、生成响应并发送回客户端、以及关闭连接。
+            它的重点是 IO 逻辑、解析和生成响应
+            '''
             self._connection_handler = asyncio.start_server(
-                self._server.handle_connection,
+                self._server.handle_connection, # 作为回调函数
                 host=self.host,
                 port=self.port,
                 reuse_address=True,
@@ -109,6 +116,7 @@ class HandlerWrapper(object):
 class Router(object):
     """
     Container used to add and match a group of routes.
+    包含“路由:函数”对应关系的 Router 对象。它提供一个添加配对的方法，可以根据 URL 路径查找到相应的函数
     """
     def __init__(self):
         self.routes = {}

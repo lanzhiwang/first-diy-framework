@@ -11,7 +11,7 @@ from .exceptions import (
 
 TIMEOUT = 5
 
-
+# 一个 HTTPServer 对象，需要一个 Router 对象和一个 http_parser 模块，并使用它们来初始化
 class HTTPServer(object):
     """
     Contains objects that are shared by HTTPConnections and schedules async
@@ -43,7 +43,12 @@ class HTTPServer(object):
         connection = HTTPConnection(self, reader, writer)
         asyncio.ensure_future(connection.handle_request(), loop=self.loop)
 
-
+'''
+HTTPConnection 对象，每一个对象表示一个单独的客户端 HTTP 连接，并且处理其请求-响应周期：
+使用 http_parser 模块将收到的字节流解析为一个 Request 对象；
+使用一个 Router 实例寻找并调用正确的函数来生成一个响应；
+最后将这个响应发送回客户端。
+'''
 class HTTPConnection(object):
     """
     Takes care of whole life cycle of a single TCP connection with a
@@ -58,8 +63,8 @@ class HTTPConnection(object):
         interface.
     """
     def __init__(self, http_server, reader, writer):
-        self.router = http_server.router
-        self.http_parser = http_server.http_parser
+        self.router = http_server.router # Router 实例寻找并调用正确的函数来生成一个响应
+        self.http_parser = http_server.http_parser # http_parser 模块将收到的字节流解析为一个 Request 对象
         self.loop = http_server.loop
 
         self._reader = reader
