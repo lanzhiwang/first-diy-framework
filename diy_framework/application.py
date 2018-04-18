@@ -113,10 +113,26 @@ class Router(object):
     def __init__(self):
         self.routes = {}
 
+    '''router.add_routes({
+    r'/welcome/{name}': welcome,
+    r'/': home,
+    r'/login': parse_form,})
+    '''
     def add_routes(self, routes):
         for route, fn in routes.items():
+            '''
+            /welcome/{name} <function welcome at 0x7fb5a9cf3730>
+            / <function home at 0x7fb5a9cf32f0>
+            /login <function parse_form at 0x7fb5a9cf3840>
+            '''
+            # print(route, fn)
             self.add_route(route, fn)
 
+    '''
+    /welcome/{name} <function welcome at 0x7fb5a9cf3730>
+    / <function home at 0x7fb5a9cf32f0>
+    /login <function parse_form at 0x7fb5a9cf3840>
+    '''
     def add_route(self, path, handler):
         """
         Creates a path:function pair for later retrieval by path. The
@@ -127,6 +143,12 @@ class Router(object):
             and returns a string or Response object.
         """
         compiled_route = self.__class__.build_route_regexp(path)
+        '''
+        re.compile('^/$')
+        re.compile('^/login$')
+        re.compile('^/welcome/(?P<name>[a-zA-Z0-9_-]+)$')
+        '''
+        # print(compiled_route)
         if compiled_route not in self.routes:
             self.routes[compiled_route] = handler
         else:
@@ -160,6 +182,13 @@ class Router(object):
         :param regexp_str: a string representing a URL path.
         :return: a compiled regular expression.
         """
+
+        """
+        /welcome/{name}
+        /
+        /login
+        """
+        # print(regexp_str)
         def named_groups(matchobj):
             return '(?P<{0}>[a-zA-Z0-9_-]+)'.format(matchobj.group(1))
 
@@ -183,3 +212,10 @@ class Router(object):
             return match.groupdict()
         except AttributeError:
             return None
+
+if __name__ == "__main__":
+    router = Router()
+    router.add_routes({
+        r'/welcome/{name}': welcome,
+        r'/': home,
+        r'/login': parse_form, })
